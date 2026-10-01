@@ -17,7 +17,7 @@ import type { QueueItem } from '../types/queue';
 import { QueueItemEditor } from './QueueItemEditor';
 
 const STATUS_LABEL = { queued: 'Queued', running: 'Running', done: 'Done' } as const;
-const STATUS_DOT = { queued: 'bg-muted-foreground/40', running: 'bg-primary', done: 'bg-emerald-500' } as const;
+const STATUS_DOT = { queued: 'bg-muted-foreground/40', running: 'bg-primary', done: 'bg-success' } as const;
 
 function QueueRow({
   item,
@@ -125,7 +125,7 @@ export function QueueDrawer() {
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground tabular-nums">
           {empty
             ? 'No timers yet.'
             : queue.remainingTotalMs === null
@@ -139,7 +139,7 @@ export function QueueDrawer() {
           onCheckedChange={queue.setAutoAdvance}
         />
         {queue.autoAdvance && hasInfinite && (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
+          <p className="text-sm text-alert">
             A timer that repeats forever never ends, so the queue won't move past it until you stop or skip it.
           </p>
         )}

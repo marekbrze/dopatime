@@ -5,7 +5,7 @@ import { STORAGE_PREFIX } from '@/shared/storage';
 export function ErrorFallback({ onReload, onReset }: { onReload: () => void; onReset: () => void }) {
   const [confirming, setConfirming] = useState(false);
   return (
-    <div role="alert" className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
+    <div role="alert" className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
       <h1 className="text-xl font-semibold">Something went wrong</h1>
       <p className="text-sm text-muted-foreground">
         Dopatime hit an unexpected error. Reloading usually fixes it. If it keeps happening, the saved data may be damaged,

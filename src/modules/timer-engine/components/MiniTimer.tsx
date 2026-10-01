@@ -8,11 +8,14 @@ export function MiniTimer() {
   if (!run) return null;
 
   const label = run.status === 'finished' ? "Time's up" : formatClock(remaining);
-  const icon = run.status === 'running' ? '⏳' : run.status === 'paused' ? '⏸' : '🔔';
+  const icon = run.status === 'running' ? '▶' : run.status === 'paused' ? '❚❚' : '●';
+  const tone = run.status === 'running' ? 'text-primary' : run.status === 'paused' ? 'text-muted-foreground' : 'animate-alert text-alert';
   return (
-    <p className="flex items-center gap-2 rounded-full border px-3 py-1 text-sm tabular-nums">
-      <span aria-hidden="true">{icon}</span>
-      <span className="font-mono font-medium">{label}</span>
+    <p className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1 text-sm tabular-nums">
+      <span aria-hidden="true" className={`text-xs ${tone}`}>
+        {icon}
+      </span>
+      <span className="font-medium">{label}</span>
       {run.name && <span className="max-w-32 truncate text-muted-foreground">{run.name}</span>}
     </p>
   );

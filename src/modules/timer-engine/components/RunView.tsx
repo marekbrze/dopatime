@@ -19,7 +19,7 @@ function Progress({ phaseMs }: { phaseMs: number }) {
       aria-valuenow={Math.round(pct)}
       className="h-2 w-full max-w-md overflow-hidden rounded-full bg-muted"
     >
-      <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+      <div className="h-full bg-primary transition-[width] duration-200 ease-out" style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -61,7 +61,7 @@ export function RunView() {
       </div>
 
       {finished ? (
-        <p className="font-mono text-6xl font-semibold sm:text-7xl">Time's up</p>
+        <p className="animate-alert text-5xl font-medium tracking-tight text-alert sm:text-6xl">Time's up</p>
       ) : (
         <>
           <CountdownDisplay />

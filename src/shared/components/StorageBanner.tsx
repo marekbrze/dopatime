@@ -23,7 +23,7 @@ export function StorageBannerView({ writeFailed, corrupted, onOpenSettings, onDi
         </div>
       )}
       {corrupted.length > 0 && (
-        <div role="status" className="flex flex-wrap items-center gap-3 bg-amber-500/10 px-6 py-2 text-sm text-amber-700 dark:text-amber-300">
+        <div role="status" className="flex flex-wrap items-center gap-3 bg-alert/10 px-6 py-2 text-sm text-alert">
           <p className="flex-1">Some saved data couldn't be read and was reset to defaults ({corrupted.join(', ')}).</p>
           <Button size="sm" variant="ghost" onClick={onDismissCorrupted}>
             Dismiss

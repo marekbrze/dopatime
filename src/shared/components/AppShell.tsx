@@ -24,10 +24,10 @@ export function AppShell({ miniTimer, children, drawers }: AppShellProps) {
   const active = DRAWERS.find((d) => d.id === openDrawer);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <StorageBanner onOpenSettings={() => setOpenDrawer('settings-data')} />
       <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b px-6 py-3">
-        <h1 className="text-lg font-semibold">Dopatime</h1>
+        <h1 className="text-lg font-semibold tracking-tight">Dopatime</h1>
         <div aria-live="off">{miniTimer}</div>
         <nav aria-label="Panels" className="flex justify-end gap-2">
           {DRAWERS.map(({ id, label, icon: Icon }) => (

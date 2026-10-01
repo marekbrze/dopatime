@@ -14,7 +14,8 @@ export const DEFAULT_SETTINGS: Settings = {
   alarmSound: 'chime',
   alarmVolume: 0.7,
   repeatUntilDismissed: true,
-  theme: 'system',
+  // Dark is the designed-first theme (docs/DESIGN.md); "system" is still an option.
+  theme: 'dark',
   autoAdvanceDefault: true,
 };
 

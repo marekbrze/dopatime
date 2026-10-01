@@ -60,7 +60,7 @@ export function TimerDefinitionEditor({ builder: b, compact = false }: { builder
       <p
         role="status"
         aria-label="Built duration"
-        className={`font-mono font-semibold tabular-nums ${compact ? 'text-4xl' : 'text-6xl'}`}
+        className={`${compact ? 'text-5xl font-medium tabular-nums tracking-tight' : 'text-countdown'} ${b.durationMs === 0 ? 'text-muted-foreground' : ''}`}
       >
         {formatClock(b.durationMs)}
       </p>
