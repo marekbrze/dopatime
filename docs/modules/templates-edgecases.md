@@ -10,11 +10,11 @@
 
 | # | Severity | Category | Edge case | Behavior today | Suggested behavior | Where |
 |---|----------|----------|-----------|----------------|--------------------|-------|
-| 1 | 🟡 | Action outcomes | "Start now" while another timer is running | The running timer is replaced without warning | Disable with a hint "Stop the current timer first" | `src/modules/templates/components/TemplatesDrawer.tsx:72` |
-| 2 | 🟢 | Data states | A hand-edited import with a few invalid templates | Invalid ones are dropped silently | Accept for the prototype | `src/modules/templates/hooks/use-templates.tsx:28` |
+| 1 | 🟡 | Action outcomes | "Start now" while another timer is running | The running timer is replaced without warning | Disable with a hint "Stop the current timer first" | ✅ `src/modules/templates/components/TemplatesDrawer.tsx:74` |
+| 2 | 🟢 | Data states | A hand-edited import with a few invalid templates | Invalid ones are dropped silently | Accept for the prototype | ❌ Accepted: invalid entries are dropped on load. |
 
 ## Priority list
 1. Silent replacement of a running timer (#1).
 
-## Hand-off to proto-harden
+## Hand-off to proto-harden (done)
 - #1.

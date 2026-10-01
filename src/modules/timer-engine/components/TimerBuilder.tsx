@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NamePrompt } from '@/shared/components/NamePrompt';
 import { useNotice } from '@/shared/hooks/use-notice';
+import { formatClock } from '@/shared/lib/format';
 import { useQueue } from '@/modules/timer-queue/hooks/use-queue';
 import { useTemplates } from '@/modules/templates/hooks/use-templates';
 import { useBuilder } from '../hooks/use-builder';
@@ -18,11 +19,16 @@ export function TimerBuilder() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [notice, showNotice] = useNotice();
 
-  const hint = b.isValid
-    ? null
-    : b.mode === 'simple'
+  const leftover = b.mode === 'alternating' && b.durationMs > 0 && b.phases.length > 0;
+  const hint = !b.isValid
+    ? b.mode === 'simple'
       ? 'Add some time to start.'
-      : 'Add at least one phase to start.';
+      : b.durationMs > 0
+        ? 'Click “Add phase” to turn the time you built into a phase.'
+        : 'Add at least one phase to start.'
+    : leftover
+      ? `${formatClock(b.durationMs)} isn't added as a phase yet and will be ignored. Add it or clear it.`
+      : null;
 
   return (
     <section aria-label="Timer" className="flex w-full flex-col items-center gap-6">
@@ -38,7 +44,7 @@ export function TimerBuilder() {
       />
 
       <div className="flex flex-col items-center gap-2">
-        <Button size="lg" className="h-12 px-10 text-base" disabled={!b.isValid} onClick={() => runner.start(b.def, b.name.trim())}>
+        <Button data-start size="lg" className="h-12 px-10 text-base" disabled={!b.isValid} onClick={() => runner.start(b.def, b.name.trim())}>
           Start
         </Button>
         {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
@@ -50,6 +56,7 @@ export function TimerBuilder() {
           disabled={!b.isValid}
           onClick={() => {
             queue.addItem({ name: b.name, def: b.def });
+            b.setName('');
             showNotice('Added to queue.');
           }}
         >

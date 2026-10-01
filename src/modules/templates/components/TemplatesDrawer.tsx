@@ -23,6 +23,7 @@ export function TemplatesDrawer() {
   const { templates, rename, remove } = useTemplates();
   const queue = useQueue();
   const runner = useTimerRunner();
+  const runActive = runner.run !== null && runner.run.status !== 'finished';
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<Template | null>(null);
   const [notice, showNotice] = useNotice();
@@ -45,6 +46,7 @@ export function TemplatesDrawer() {
 
   return (
     <div className="space-y-3">
+      {runActive && <p className="text-sm text-muted-foreground">A timer is running. Stop it to start a template right away.</p>}
       <ul aria-label="Templates" className="space-y-2">
         {templates.map((t) =>
           renamingId === t.id ? (
@@ -69,7 +71,7 @@ export function TemplatesDrawer() {
                 </p>
               </div>
               {t.kind === 'timer' && t.def && (
-                <Button size="sm" onClick={() => runner.start(t.def!, t.name)}>
+                <Button size="sm" disabled={runActive} onClick={() => runner.start(t.def!, t.name)}>
                   Start now
                 </Button>
               )}

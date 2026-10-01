@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { XIcon } from 'lucide-react';
-import { formatClock, formatHuman } from '@/shared/lib/format';
+import { formatClock, formatHuman, MAX_DURATION_MS } from '@/shared/lib/format';
 import { MAX_CYCLES, type useBuilder } from '../hooks/use-builder';
 import { DurationButtons } from './DurationButtons';
 
@@ -66,6 +66,11 @@ export function TimerDefinitionEditor({ builder: b, compact = false }: { builder
       </p>
 
       <DurationButtons onAdd={b.addTime} size={compact ? 'sm' : 'default'} />
+      {b.durationMs >= MAX_DURATION_MS && (
+        <p role="status" className="text-sm text-muted-foreground">
+          That's the maximum: {formatClock(MAX_DURATION_MS)}.
+        </p>
+      )}
 
       <div className="flex gap-2">
         <Button variant="ghost" size={compact ? 'sm' : 'default'} onClick={b.clearTime} disabled={b.durationMs === 0}>

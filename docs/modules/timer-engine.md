@@ -53,6 +53,12 @@ From the builder the user can click "Add to queue" (optionally typing a name fir
 - **+1 min while finished**: not available; use Restart.
 - **Infinite cycles**: cycle label shows "Cycle N" without a total; Stop is the only way out.
 
+### Hardened behaviors (proto-harden)
+- Stored run/builder data is validated on load; anything malformed resets to idle/defaults instead of crashing.
+- Run controls ignore clicks for ~0.4 s after the run starts or changes state, so a double-click on Start can't pause it.
+- Keyboard focus moves to the main run button on start/finish and back to Start when the run ends.
+- Alternating mode warns when built time hasn't been added as a phase; reaching 99:59:59 shows a notice; long names truncate; adding to the queue clears the name but keeps the time.
+
 ## Integration Points
 
 - **end-alerts**: the runner emits `phase-end` and `finished` events and exposes status and remaining time for the tab title.

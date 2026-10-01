@@ -118,7 +118,7 @@ export function QueueDrawer() {
   const empty = queue.items.length === 0;
   const hasInfinite = queue.items.some((i) => totalDuration(i.def) === null);
   const allDone = !empty && queue.items.every((i) => i.status === 'done');
-  const queueRunning = runner.run?.source === 'queue' && runner.run.status !== 'finished';
+  const runActive = runner.run !== null && runner.run.status !== 'finished';
 
   const remove = (item: QueueItem) => (item.status === 'running' ? setRemoving(item) : queue.removeItem(item.id));
 
@@ -209,7 +209,7 @@ export function QueueDrawer() {
       )}
 
       <div className="flex flex-wrap gap-2">
-        <Button disabled={empty || queueRunning} onClick={queue.startQueue}>
+        <Button disabled={empty || runActive} onClick={queue.startQueue}>
           {allDone ? 'Run again' : 'Start queue'}
         </Button>
         <Button variant="outline" disabled={empty} onClick={() => setSavingTemplate(true)}>
@@ -219,6 +219,10 @@ export function QueueDrawer() {
           Clear queue
         </Button>
       </div>
+
+      {!empty && runActive && (
+        <p className="text-sm text-muted-foreground">A timer is running. Stop it, or let it finish, to start the queue.</p>
+      )}
 
       {savingTemplate && (
         <NamePrompt

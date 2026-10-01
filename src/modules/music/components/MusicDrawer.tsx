@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { ExternalLinkIcon, PauseIcon, PlayIcon, StarIcon, Trash2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,8 +6,24 @@ import { SliderRow } from '@/shared/components/SliderRow';
 import { useMusic } from '../hooks/use-music';
 import { watchUrl } from '../lib/youtube';
 
+function useOnline(): boolean {
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+  return online;
+}
+
 export function MusicDrawer() {
   const music = useMusic();
+  const online = useOnline();
   const [link, setLink] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +57,16 @@ export function MusicDrawer() {
             </p>
           </div>
         </div>
+        {!online && (
+          <p role="status" className="text-sm text-muted-foreground">
+            You're offline. Music needs an internet connection.
+          </p>
+        )}
+        {music.error && (
+          <p role="alert" className="text-sm text-destructive">
+            This stream can't be played here. Press play to retry, or open it on YouTube.
+          </p>
+        )}
         <SliderRow label="Volume" value={music.volume} format={(v) => `${v}%`} onChange={music.setVolume} />
         {music.selected && (
           <a
@@ -88,7 +114,7 @@ export function MusicDrawer() {
         })}
       </ul>
 
-      <form onSubmit={submit} className="space-y-2" aria-label="Add a station">
+      <form onSubmit={submit} noValidate className="space-y-2" aria-label="Add a station">
         <p className="text-sm font-medium">Add your own station</p>
         <Input
           type="url"

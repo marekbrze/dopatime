@@ -35,6 +35,9 @@ Rename (inline), delete (with confirmation).
 - **Saving an empty queue**: action disabled.
 - **Corrupted template data (from a bad import)**: invalid entries are skipped on load.
 
+### Hardened behaviors (proto-harden)
+- "Start now" is disabled, with a hint, while a timer is active.
+
 ## Integration Points
 
 - **timer-engine**: source for "Save as template", target for "Start now".

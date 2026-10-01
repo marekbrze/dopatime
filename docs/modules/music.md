@@ -35,6 +35,11 @@ Background lofi/chillhop that plays independently of the timer, so the user can 
 - **Page reload**: music doesn't autoplay; the last station and volume are remembered.
 - **No stations selected**: Play is disabled until one is chosen.
 
+### Hardened behaviors (proto-harden)
+- The player's own state and error messages drive the UI: failures show "This stream can't be played here", and Play retries with a fresh player.
+- The add-station form uses our inline error message (native URL validation is off).
+- Stored music prefs are validated on load; offline shows a hint.
+
 ## Integration Points
 
 - **settings-data**: stations, favorites and volume are part of the export/import.

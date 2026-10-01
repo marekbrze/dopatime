@@ -36,6 +36,17 @@ export function downloadBackup(): void {
   URL.revokeObjectURL(url);
 }
 
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** Expected top-level shape of each known section, so a damaged file is rejected before it replaces anything. */
+const SECTION_CHECKS: Record<string, { label: string; valid: (v: unknown) => boolean }> = {
+  [`${STORAGE_PREFIX}queue`]: { label: 'queue', valid: (v) => isObject(v) && Array.isArray(v.items) },
+  [`${STORAGE_PREFIX}templates`]: { label: 'templates', valid: Array.isArray },
+  [`${STORAGE_PREFIX}music`]: { label: 'music', valid: (v) => isObject(v) && (v.customStations === undefined || Array.isArray(v.customStations)) },
+  [`${STORAGE_PREFIX}settings`]: { label: 'settings', valid: isObject },
+  [`${STORAGE_PREFIX}builder`]: { label: 'timer builder', valid: isObject },
+};
+
 export type ParseResult = { ok: true; backup: BackupFile } | { ok: false; error: string };
 
 export async function parseBackupFile(file: File): Promise<ParseResult> {
@@ -52,6 +63,11 @@ export async function parseBackupFile(file: File): Promise<ParseResult> {
   }
   if (typeof b.version !== 'number' || b.version > BACKUP_VERSION) {
     return { ok: false, error: 'This backup was made by a newer version and is not supported.' };
+  }
+  for (const [key, check] of Object.entries(SECTION_CHECKS)) {
+    if (key in b.data && !check.valid(b.data[key])) {
+      return { ok: false, error: `The ${check.label} section of this backup is damaged, so nothing was imported.` };
+    }
   }
   return { ok: true, backup: b as BackupFile };
 }

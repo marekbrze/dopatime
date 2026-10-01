@@ -10,6 +10,13 @@ function getContext(): AudioContext | null {
   return ctx;
 }
 
+/** Whether sound can currently play. `suspended` means the browser is blocking audio until a user gesture. */
+export function audioState(): 'running' | 'suspended' | 'unsupported' {
+  const c = getContext();
+  if (!c) return 'unsupported';
+  return c.state === 'running' ? 'running' : 'suspended';
+}
+
 /** Browsers only allow audio after a user gesture, so call this from a click or key handler. */
 export function unlockAudio(): void {
   const c = getContext();

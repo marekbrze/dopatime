@@ -11,7 +11,7 @@ import {
 import { useStoredState } from '@/shared/hooks/use-stored-state';
 import { useTicker } from '@/shared/hooks/use-ticker';
 import { MINUTE } from '@/shared/lib/format';
-import { advanceRun, isValidDef, nextPosition, phaseDurations, remainingFor } from '../lib/timer';
+import { advanceRun, isValidDef, nextPosition, parseActiveRun, phaseDurations, remainingFor } from '../lib/timer';
 import type { ActiveRun, RunEvent, RunEventType, RunSource, TimerDef } from '../types/timer';
 
 interface RunnerApi {
@@ -35,7 +35,7 @@ const NowContext = createContext<number>(0);
 const NO_EVENT: RunEvent = { seq: 0, type: 'stopped', run: null, silent: true };
 
 export function TimerRunnerProvider({ children }: { children: ReactNode }) {
-  const [run, setRun] = useStoredState<ActiveRun | null>('active-run', null);
+  const [run, setRun] = useStoredState<ActiveRun | null>('active-run', null, parseActiveRun);
   const [event, setEvent] = useState<RunEvent>(NO_EVENT);
   const [now, setNow] = useState(() => Date.now());
   const runRef = useRef(run);

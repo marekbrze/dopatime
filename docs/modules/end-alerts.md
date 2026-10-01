@@ -41,6 +41,11 @@ On the first Start the app asks for notification permission. If denied, the othe
 - **Multiple alerts overlapping**: a new alert replaces the previous one.
 - **Tab in the foreground**: notification is still shown but low-priority; sound plays.
 
+### Hardened behaviors (proto-harden)
+- The browser asks for confirmation before the tab is closed while a timer is running.
+- Any click on the page silences a ringing alarm.
+- Settings > Alarm > Preview tells the user when the browser is blocking sound.
+
 ## Integration Points
 
 - **timer-engine**: reads status, remaining time, name and phase events.

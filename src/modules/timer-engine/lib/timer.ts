@@ -86,3 +86,45 @@ export function remainingFor(run: ActiveRun | null, now: number): number {
   if (run.status === 'paused') return run.remainingMs;
   return 0;
 }
+
+const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+
+export function parseTimerDef(raw: unknown): TimerDef | null {
+  const d = raw as Partial<TimerDef> | null;
+  if (!d || typeof d !== 'object') return null;
+  if (d.kind === 'simple' && isNum(d.durationMs)) {
+    const def: TimerDef = { kind: 'simple', durationMs: clampDuration(d.durationMs) };
+    return isValidDef(def) ? def : null;
+  }
+  if (d.kind === 'alternating' && Array.isArray(d.phases) && (d.cycles === null || isNum(d.cycles))) {
+    const phases = d.phases
+      .filter((p) => p && typeof p.id === 'string' && isNum(p.durationMs))
+      .map((p) => ({ id: p.id, durationMs: clampDuration(p.durationMs) }));
+    const def: TimerDef = { kind: 'alternating', phases, cycles: d.cycles === null ? null : Math.max(1, Math.floor(d.cycles)) };
+    return isValidDef(def) ? def : null;
+  }
+  return null;
+}
+
+/** Validates a stored run; anything unexpected resets to idle instead of crashing the stage. */
+export function parseActiveRun(raw: unknown): ActiveRun | null {
+  const r = raw as Partial<ActiveRun> | null;
+  if (!r || typeof r !== 'object') return null;
+  const def = parseTimerDef(r.def);
+  const status = r.status;
+  if (!def || (status !== 'running' && status !== 'paused' && status !== 'finished')) return null;
+  const count = phaseDurations(def).length;
+  if (!isNum(r.phaseIndex) || r.phaseIndex < 0 || r.phaseIndex >= count) return null;
+  if (!isNum(r.cycleIndex) || r.cycleIndex < 0 || !isNum(r.endsAt) || !isNum(r.remainingMs)) return null;
+  return {
+    def,
+    name: typeof r.name === 'string' ? r.name : '',
+    status,
+    phaseIndex: r.phaseIndex,
+    cycleIndex: r.cycleIndex,
+    endsAt: r.endsAt,
+    remainingMs: r.remainingMs,
+    source: r.source === 'queue' ? 'queue' : 'adhoc',
+    queueItemId: typeof r.queueItemId === 'string' ? r.queueItemId : null,
+  };
+}

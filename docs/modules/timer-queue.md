@@ -46,6 +46,11 @@ One click on "Save as template" → name prompt → stored in templates.
 - **Queue finished**: items stay marked done; "Run again" resets statuses.
 - **Alternating items**: shown with a summary like `25/5 × 4`; infinite items block auto-advance (they never finish), flagged with a hint.
 
+### Hardened behaviors (proto-harden)
+- Pressing Done on a finished queue item keeps it done (it no longer re-queues).
+- "Start queue" is disabled, with a hint, while another timer is active, so a running timer is never silently replaced.
+- On load, an item marked running without a matching run goes back to queued.
+
 ## Integration Points
 
 - **timer-engine**: starts runs for items; advances on `finished`.

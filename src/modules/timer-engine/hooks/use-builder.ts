@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useStoredState } from '@/shared/hooks/use-stored-state';
 import { generateId } from '@/shared/types';
 import { clampDuration, isValidDef } from '../lib/timer';
+import { MAX_DURATION_MS } from '@/shared/lib/format';
 import type { Phase, TimerDef } from '../types/timer';
 
 export type BuilderMode = 'simple' | 'alternating';
@@ -20,12 +21,25 @@ const INITIAL: BuilderState = { mode: 'simple', durationMs: 0, phases: [], cycle
 
 export const MAX_CYCLES = 99;
 
+function parseBuilder(raw: unknown): BuilderState {
+  const r = (raw ?? {}) as Partial<BuilderState>;
+  const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+  return {
+    mode: r.mode === 'alternating' ? 'alternating' : 'simple',
+    durationMs: Math.min(MAX_DURATION_MS, Math.max(0, num(r.durationMs, 0))),
+    phases: Array.isArray(r.phases)
+      ? r.phases
+          .filter((p) => p && typeof p.id === 'string' && typeof p.durationMs === 'number' && p.durationMs > 0)
+          .map((p) => ({ id: p.id, durationMs: Math.min(MAX_DURATION_MS, p.durationMs) }))
+      : [],
+    cycles: r.cycles === null ? null : Math.min(MAX_CYCLES, Math.max(1, Math.floor(num(r.cycles, 4)))),
+    name: typeof r.name === 'string' ? r.name.slice(0, 60) : '',
+  };
+}
+
 /** The timer being defined on the stage. Persisted, so it survives a reload. */
 export function useBuilder(storageName = 'builder') {
-  const [state, setState] = useStoredState<BuilderState>(storageName, INITIAL, (raw) => ({
-    ...INITIAL,
-    ...(raw as Partial<BuilderState>),
-  }));
+  const [state, setState] = useStoredState<BuilderState>(storageName, INITIAL, parseBuilder);
 
   const def = useMemo<TimerDef>(
     () =>

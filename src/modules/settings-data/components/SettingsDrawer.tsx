@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useEndAlerts } from '@/modules/end-alerts/hooks/use-end-alerts';
-import { playSound, unlockAudio } from '@/modules/end-alerts/lib/sounds';
+import { audioState, playSound, unlockAudio } from '@/modules/end-alerts/lib/sounds';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { useNotice } from '@/shared/hooks/use-notice';
 import { SliderRow } from '@/shared/components/SliderRow';
 import { SwitchRow } from '@/shared/components/SwitchRow';
 import { useSettings } from '../hooks/use-settings';
@@ -48,6 +49,8 @@ export function SettingsDrawer() {
   const { settings, update } = useSettings();
   const fileInput = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [notice, showNotice] = useNotice();
   const [pendingImport, setPendingImport] = useState<Awaited<ReturnType<typeof parseBackupFile>> | null>(null);
 
   const onFile = async (file: File | undefined) => {
@@ -87,12 +90,19 @@ export function SettingsDrawer() {
               onClick={() => {
                 unlockAudio();
                 playSound(settings.alarmSound, settings.alarmVolume);
+                // Resuming audio is asynchronous; check shortly after.
+                window.setTimeout(() => setAudioBlocked(audioState() !== 'running'), 150);
               }}
             >
               Preview
             </Button>
           </div>
         </div>
+        {audioBlocked && (
+          <p role="alert" className="text-sm text-destructive">
+            Your browser is blocking sound. Click anywhere on the page and try Preview again. The alert will still show in the tab title.
+          </p>
+        )}
         <SliderRow
           label="Volume"
           value={Math.round(settings.alarmVolume * 100)}
@@ -140,7 +150,13 @@ export function SettingsDrawer() {
           Everything is stored only in this browser. Export a backup to move it elsewhere.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={downloadBackup}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              downloadBackup();
+              showNotice('Backup downloaded.');
+            }}
+          >
             Export JSON
           </Button>
           <Button variant="outline" onClick={() => fileInput.current?.click()}>
@@ -156,6 +172,9 @@ export function SettingsDrawer() {
             onChange={(e) => void onFile(e.target.files?.[0])}
           />
         </div>
+        <p role="status" className="min-h-5 text-sm text-muted-foreground">
+          {notice}
+        </p>
         {importError && (
           <p role="alert" className="text-sm text-destructive">
             {importError}
@@ -166,7 +185,7 @@ export function SettingsDrawer() {
       <ConfirmDialog
         open={pendingImport?.ok === true}
         title="Replace your data?"
-        description="Importing replaces your current queue, templates, stations and settings with the contents of the file. Export first if you want to keep a copy."
+        description="Importing replaces your current queue, templates, stations and settings with the contents of the file. Export first if you want to keep a copy. A running timer will be stopped."
         confirmLabel="Replace data"
         onCancel={() => setPendingImport(null)}
         onConfirm={() => pendingImport?.ok && applyBackup(pendingImport.backup)}

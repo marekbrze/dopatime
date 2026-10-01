@@ -113,6 +113,26 @@ export function EndAlertsProvider({ children }: { children: ReactNode }) {
     if (run?.status !== 'finished') dismiss();
   }, [run?.status, dismiss]);
 
+  // Closing the tab stops the countdown from alerting, so ask first while a timer is running.
+  const running = run?.status === 'running';
+  useEffect(() => {
+    if (!running) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [running]);
+
+  // Any click on the page dismisses a ringing alarm.
+  useEffect(() => {
+    if (!alerting) return;
+    // Wait a tick so the click that triggered the alert source (e.g. Skip) doesn't dismiss it at once.
+    const id = window.setTimeout(() => window.addEventListener('pointerdown', dismiss, { once: true }), 500);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener('pointerdown', dismiss);
+    };
+  }, [alerting, dismiss]);
+
   // Repeat the alarm until dismissed, if enabled.
   useEffect(() => {
     if (!alerting || !settings.repeatUntilDismissed) return;

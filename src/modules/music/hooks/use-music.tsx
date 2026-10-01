@@ -6,12 +6,30 @@ import { BUILTIN_STATIONS, type MusicPrefs, type MusicStation } from '../types/m
 
 const INITIAL: MusicPrefs = { customStations: [], favoriteIds: [], selectedId: null, volume: 50 };
 
+/** Validates stored prefs (they can come from an import), dropping anything malformed. */
+function parsePrefs(raw: unknown): MusicPrefs {
+  const r = (raw ?? {}) as Partial<MusicPrefs>;
+  const text = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
+  return {
+    customStations: Array.isArray(r.customStations)
+      ? r.customStations
+          .filter((s) => s && text(s.id) && text(s.name) && (text(s.videoId) || text(s.listId)))
+          .map((s) => ({ id: s.id, name: s.name, videoId: s.videoId, listId: s.listId, builtin: false }))
+      : [],
+    favoriteIds: Array.isArray(r.favoriteIds) ? r.favoriteIds.filter(text) : [],
+    selectedId: text(r.selectedId) ? r.selectedId : null,
+    volume: typeof r.volume === 'number' && Number.isFinite(r.volume) ? Math.min(100, Math.max(0, r.volume)) : INITIAL.volume,
+  };
+}
+
 interface MusicApi {
   /** Favorites first, then the rest; built-ins before custom within each group. */
   stations: MusicStation[];
   favoriteIds: string[];
   selected: MusicStation | null;
   playing: boolean;
+  /** The player reported that it can't play this station. */
+  error: boolean;
   volume: number;
   select: (id: string) => void;
   togglePlay: () => void;
@@ -24,13 +42,11 @@ interface MusicApi {
 const MusicContext = createContext<MusicApi | null>(null);
 
 export function MusicProvider({ children }: { children: ReactNode }) {
-  const [prefs, setPrefs] = useStoredState<MusicPrefs>('music', INITIAL, (raw) => ({
-    ...INITIAL,
-    ...(raw as Partial<MusicPrefs>),
-  }));
+  const [prefs, setPrefs] = useStoredState<MusicPrefs>('music', INITIAL, parsePrefs);
   // Playback never resumes by itself after a reload: browsers require a click to start audio.
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [error, setError] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const prefsRef = useRef(prefs);
   useEffect(() => {
@@ -50,15 +66,25 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       favoriteIds: prefs.favoriteIds,
       selected,
       playing,
+      error,
       volume: prefs.volume,
       select: (id) => {
+        setError(false);
         setPrefs((p) => ({ ...p, selectedId: id }));
         // A new station replaces the iframe, which autoplays, so we are playing from here on.
         if (started) setPlaying(true);
       },
       togglePlay: () => {
         if (!selected) return;
-        if (!started) {
+        if (error) {
+          // Try again from scratch: a fresh player.
+          setError(false);
+          setStarted(false);
+          queueMicrotask(() => {
+            setStarted(true);
+            setPlaying(true);
+          });
+        } else if (!started) {
           setStarted(true);
           setPlaying(true);
         } else if (playing) {
@@ -105,11 +131,41 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         }));
       },
     }),
-    [stations, all, prefs.favoriteIds, prefs.volume, selected, playing, started, setPrefs],
+    [stations, all, prefs.favoriteIds, prefs.volume, selected, playing, error, started, setPrefs],
   );
 
   const onFrameLoad = useCallback(() => {
     playerCommand(frameRef.current, 'setVolume', [prefsRef.current.volume]);
+    // Ask the player to report its state and errors back to us.
+    frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
+  }, []);
+
+  // Keep the UI truthful: follow the player's own state and surface its errors.
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== frameRef.current?.contentWindow || typeof e.data !== 'string') return;
+      let msg: { event?: string; info?: unknown };
+      try {
+        msg = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      if (msg.event === 'onError') {
+        setError(true);
+        setPlaying(false);
+        return;
+      }
+      const state =
+        msg.event === 'onStateChange'
+          ? msg.info
+          : msg.event === 'infoDelivery' && typeof msg.info === 'object' && msg.info !== null
+            ? (msg.info as { playerState?: unknown }).playerState
+            : undefined;
+      if (state === 1 || state === 3) setPlaying(true);
+      else if (state === 2 || state === 0) setPlaying(false);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
   }, []);
 
   return (

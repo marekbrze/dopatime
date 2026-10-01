@@ -73,6 +73,17 @@ export function QueueProvider({ children }: { children: ReactNode }) {
     [runner],
   );
 
+  // After a reload or an import an item can be marked running without a matching run: put it back in line.
+  useEffect(() => {
+    const activeId = runner.run?.queueItemId ?? null;
+    setState((s) =>
+      s.items.some((i) => i.status === 'running' && i.id !== activeId)
+        ? { ...s, items: s.items.map((i) => (i.status === 'running' && i.id !== activeId ? { ...i, status: 'queued' } : i)) }
+        : s,
+    );
+    // Only on mount: during normal operation the lifecycle effect below keeps statuses in sync.
+  }, []);
+
   // React to the run's lifecycle: mark items and advance the queue.
   const handledSeq = useRef(runner.event.seq);
   useEffect(() => {
@@ -83,7 +94,12 @@ export function QueueProvider({ children }: { children: ReactNode }) {
     if (!r || r.source !== 'queue' || !r.queueItemId) return;
 
     if (ev.type === 'started') setStatus(r.queueItemId, 'running');
-    else if (ev.type === 'stopped') setStatus(r.queueItemId, 'queued');
+    else if (ev.type === 'stopped') {
+      // Only an item that was still running goes back to the queue; a finished one stays done.
+      if (stateRef.current.items.find((i) => i.id === r.queueItemId)?.status === 'running') {
+        setStatus(r.queueItemId, 'queued');
+      }
+    }
     else if (ev.type === 'finished') {
       setStatus(r.queueItemId, 'done');
       const next = stateRef.current.items.find((i) => i.status === 'queued' && i.id !== r.queueItemId);

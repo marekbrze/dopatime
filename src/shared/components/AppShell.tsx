@@ -8,6 +8,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { DRAWERS, type DrawerId } from '@/shared/shell/drawers';
+import { StorageBanner } from './StorageBanner';
 
 interface AppShellProps {
   /** Compact timer shown in the header, so the countdown stays visible when a drawer is open. */
@@ -24,6 +25,7 @@ export function AppShell({ miniTimer, children, drawers }: AppShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <StorageBanner onOpenSettings={() => setOpenDrawer('settings-data')} />
       <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b px-6 py-3">
         <h1 className="text-lg font-semibold">Dopatime</h1>
         <div aria-live="off">{miniTimer}</div>

@@ -38,6 +38,11 @@ A small, quiet place for preferences and for moving data between browsers. Nothi
 - **Import with missing sections**: missing parts fall back to defaults.
 - **Large files**: files over 2 MB are rejected.
 
+### Hardened behaviors (proto-harden)
+- Import validates each known section before replacing anything and names the damaged section.
+- Export shows "Backup downloaded."; the import confirmation mentions that a running timer will be stopped.
+- App-wide: a banner warns when LocalStorage can't be written or data had to be reset, and an error boundary offers Reload / Reset app data instead of a blank page.
+
 ## Integration Points
 
 - **end-alerts**: alarm preferences.

@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useEndAlerts } from '@/modules/end-alerts/hooks/use-end-alerts';
 import { useQueue } from '@/modules/timer-queue/hooks/use-queue';
+import { useArmed } from '../hooks/use-armed';
 import { useTimerRunner, useRemainingMs } from '../hooks/use-timer-runner';
 import { currentPhaseMs, cycleCount, phaseDurations } from '../lib/timer';
 import { CountdownDisplay } from './CountdownDisplay';
@@ -28,6 +30,14 @@ export function RunView() {
   const queue = useQueue();
   const alerts = useEndAlerts();
   const { run } = runner;
+  const primary = useRef<HTMLButtonElement>(null);
+  const armed = useArmed(run?.status);
+
+  // Keep keyboard focus on the main control as the stage swaps buttons.
+  useEffect(() => {
+    primary.current?.focus();
+  }, [run?.status]);
+
   if (!run) return null;
 
   const phases = phaseDurations(run.def).length;
@@ -39,7 +49,9 @@ export function RunView() {
   return (
     <section aria-label="Running timer" className="flex w-full flex-col items-center gap-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">{run.name || 'Timer'}</h2>
+        <h2 className="max-w-md truncate text-xl font-medium" title={run.name || undefined}>
+          {run.name || 'Timer'}
+        </h2>
         {alternating && !finished && (
           <p className="text-sm text-muted-foreground">
             Phase {run.phaseIndex + 1} of {phases} · Cycle {run.cycleIndex + 1}
@@ -69,11 +81,11 @@ export function RunView() {
             </Button>
           )}
           {nextItem && (
-            <Button size="lg" onClick={queue.startNext}>
+            <Button ref={primary} size="lg" onClick={queue.startNext}>
               Start next: {nextItem.name}
             </Button>
           )}
-          <Button size="lg" variant={nextItem ? 'outline' : 'default'} onClick={runner.restart}>
+          <Button ref={nextItem ? undefined : primary} size="lg" variant={nextItem ? 'outline' : 'default'} onClick={runner.restart}>
             Restart
           </Button>
           <Button size="lg" variant="outline" onClick={runner.stop}>
@@ -83,11 +95,11 @@ export function RunView() {
       ) : (
         <div className="flex flex-wrap justify-center gap-2">
           {run.status === 'running' ? (
-            <Button size="lg" onClick={runner.pause}>
+            <Button ref={primary} size="lg" disabled={!armed} onClick={runner.pause}>
               Pause
             </Button>
           ) : (
-            <Button size="lg" onClick={runner.resume}>
+            <Button ref={primary} size="lg" disabled={!armed} onClick={runner.resume}>
               Resume
             </Button>
           )}
