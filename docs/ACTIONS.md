@@ -83,3 +83,14 @@ Complete list of actions users can perform, organized by entity.
 |--------|------------|------|-------|
 | Export JSON | Download a JSON file with settings, templates, queue and stations | User | |
 | Import JSON | Load a JSON file with settings and data | User | Replace vs. merge is an open question |
+
+### Additions from proto-detail
+
+| Action | Description | Role | Notes |
+|--------|------------|------|-------|
+| Add phase | Append the built duration as a phase of an alternating timer | User | timer-engine |
+| Set cycles | Choose a number of cycles or infinite | User | timer-engine |
+| Done | Leave the finished state and return to idle | User | timer-engine |
+| Start now | Run a single-timer template immediately | User | templates |
+| Preview sound | Play the selected alarm once | User | settings-data |
+| Run queue again | Reset item statuses and start over | User | timer-queue |

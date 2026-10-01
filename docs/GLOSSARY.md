@@ -29,3 +29,5 @@ Terms and concepts specific to this project. Used across all project skills to m
 | +1 min | `addMinute` | Action that extends a running timer by one minute. | extend |
 | stan timera | `TimerStatus` | Timer state: idle, running, paused, finished. | mode |
 | moduł | `Module` | A self-contained design area of the app that can be prototyped independently (timer-engine, end-alerts, timer-queue, templates, music, settings-data). | feature, section |
+| aktywny przebieg | `ActiveRun` | The one timer currently running, paused or finished, started ad hoc or from a queue item. | session |
+| faza / cykl | `phaseIndex` / `cycleIndex` | Position inside an alternating timer. | step |

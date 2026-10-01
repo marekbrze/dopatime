@@ -83,3 +83,13 @@ erDiagram
 **Ownership**: User
 **Lifecycle**: Always exists with defaults; persisted locally; included in JSON export.
 **States**: n/a
+
+## Additions from proto-detail
+
+### ActiveRun
+**Description**: The currently running (or paused/finished) timer. Exactly one at a time, either ad hoc from the stage or started from a queue item. Holds the timer definition, the current phase and cycle, and an end timestamp used to compute remaining time. Persisted so a reload keeps the run.
+**Instances per user**: One
+**Ownership**: System
+**Lifecycle**: Created on Start, destroyed on Stop/Done.
+**States**: `idle → running ⇄ paused → finished`
+**Belongs to**: timer-engine
