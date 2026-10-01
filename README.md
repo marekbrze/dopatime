@@ -1,23 +1,40 @@
-# proto-template
+# Dopatime
 
-A starter template for rapid UX prototyping. React + Vite + Tailwind + Base UI, with Storybook and a11y checks wired in — so a prototype starts one step away from something you can actually evaluate.
+A simple, flexible one-page timer for focus sprints, with lofi music in the background.
 
-## What's in the box
+**Live:** https://marekbrze.github.io/dopatime/
 
-- **React + Vite + TypeScript** — fast dev server, fast HMR.
-- **Tailwind CSS** — utility-first styling.
-- **Base UI** — unstyled, accessible primitives (the building blocks, not a component skin).
-- **Storybook + a11y addon** — develop and review components in isolation, with accessibility checks on by default.
-- **ESLint + Vitest (browser)** — linting and in-browser testing ready to go.
+## What it does
 
-## Use it
+- **Quick timers**: build a time by tapping `+1h`, `+15m`, `+5m` and `+1m`; each tap adds to the timer.
+- **Alternating timers**: Pomodoro-style phases such as 25/5 or 5/10/15, repeated a set number of times or forever.
+- **Queue**: line up named timers ("Plan tasks" 10 min, "Deep work" 30 min, "Email" 15 min) and let them auto-start one after another, or wait for you.
+- **Templates**: save favorite timers and whole queues and add them back in one click.
+- **Never miss the end**: the countdown shows in the browser tab title, and when time is up you get a sound, a browser notification and a flashing title, with an option to repeat the alarm until you dismiss it.
+- **Music**: Lofi Girl and Chillhop streams, or any YouTube link, playing independently of the timer.
+- **Yours only**: everything is stored in your browser. Export and import a JSON backup from Settings.
 
-Click **Use this template** above, or:
+## Develop
 
 ```bash
-gh repo create my-prototype --template marekbrze/proto-template
+npm install
+npm run dev          # start the app
+npm run storybook    # browse components and their states
+npm run lint         # eslint + jsx-a11y
+npm run build        # type-check and build
 ```
 
-## Status
+Built with React, Vite, TypeScript, Tailwind CSS v4, shadcn/ui (Base UI) and Storybook. Pushing to `main` deploys to GitHub Pages through `.github/workflows/deploy.yml`.
 
-Template — maintained as my default starting point for UX prototypes.
+## Project layout
+
+```
+src/modules/        one folder per module (timer-engine, end-alerts, timer-queue,
+                    templates, music, settings-data)
+src/shared/         app shell, shared components and hooks
+src/scenarios/      mock data scenarios for development (empty, minimal, full)
+docs/               product docs: idea, entities, actions, modules, UI strategy,
+                    design direction (DESIGN.md), per-module specs, edge cases, ADRs
+```
+
+The design direction lives in [`docs/DESIGN.md`](docs/DESIGN.md): a calm, dark-first interface in a dim aqua-teal, with the countdown as its one large element.

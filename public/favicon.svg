@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#0a0a0a" />
-  <path d="M9 23V9h6.5a4.5 4.5 0 0 1 0 9H13v5H9zm4-9h2.5a1.5 1.5 0 0 0 0-3H13v3z" fill="#fafafa" />
+  <rect width="32" height="32" rx="8" fill="#091111" />
+  <!-- A timer ring that is mostly full, with a hand at twelve -->
+  <circle cx="16" cy="17" r="8.5" fill="none" stroke="#2a3635" stroke-width="3" />
+  <path d="M16 8.5a8.5 8.5 0 1 1-8.5 8.5" fill="none" stroke="#60d3cd" stroke-width="3" stroke-linecap="round" />
+  <path d="M16 17V12.5" stroke="#60d3cd" stroke-width="2.2" stroke-linecap="round" />
 </svg>

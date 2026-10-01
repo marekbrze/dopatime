@@ -103,6 +103,9 @@
     --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
     --duration-fast: 150ms;
     --duration-base: 200ms;
+
+    /* Layers: drawer scrim and drawer are z-50; the mini timer stays above the scrim so the countdown is readable while a drawer is open. */
+    --z-pinned: 60;
 }
 
 .dark {

@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { ExternalLinkIcon, PauseIcon, PlayIcon, StarIcon, Trash2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DrawerSection } from '@/shared/components/DrawerSection';
 import { SliderRow } from '@/shared/components/SliderRow';
 import { useMusic } from '../hooks/use-music';
 import { watchUrl } from '../lib/youtube';
@@ -114,30 +115,31 @@ export function MusicDrawer() {
         })}
       </ul>
 
-      <form onSubmit={submit} noValidate className="space-y-2" aria-label="Add a station">
-        <p className="text-sm font-medium">Add your own station</p>
-        <Input
-          type="url"
-          aria-label="YouTube link"
-          placeholder="Paste a YouTube link"
-          value={link}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? 'station-error' : undefined}
-          onChange={(e) => {
-            setLink(e.target.value);
-            setError(null);
-          }}
-        />
-        <Input aria-label="Station name (optional)" placeholder="Name (optional)" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
-        {error && (
-          <p id="station-error" role="alert" className="text-sm text-destructive">
-            {error}
-          </p>
-        )}
-        <Button type="submit" variant="outline" disabled={!link.trim()}>
-          Add station
-        </Button>
-      </form>
+      <DrawerSection title="Add your own station">
+        <form onSubmit={submit} noValidate className="space-y-2">
+          <Input
+            type="url"
+            aria-label="YouTube link"
+            placeholder="Paste a YouTube link"
+            value={link}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'station-error' : undefined}
+            onChange={(e) => {
+              setLink(e.target.value);
+              setError(null);
+            }}
+          />
+          <Input aria-label="Station name (optional)" placeholder="Name (optional)" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
+          {error && (
+            <p id="station-error" role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
+          <Button type="submit" variant="outline" disabled={!link.trim()}>
+            Add station
+          </Button>
+        </form>
+      </DrawerSection>
     </div>
   );
 }

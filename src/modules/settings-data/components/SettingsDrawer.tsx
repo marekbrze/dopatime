@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useEndAlerts } from '@/modules/end-alerts/hooks/use-end-alerts';
 import { audioState, playSound, unlockAudio } from '@/modules/end-alerts/lib/sounds';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { DrawerSection } from '@/shared/components/DrawerSection';
 import { useNotice } from '@/shared/hooks/use-notice';
 import { SliderRow } from '@/shared/components/SliderRow';
 import { SwitchRow } from '@/shared/components/SwitchRow';
@@ -15,15 +16,6 @@ const THEMES: { id: ThemePreference; label: string }[] = [
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
 ];
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section aria-label={title} className="space-y-3">
-      <h3 className="text-sm font-semibold">{title}</h3>
-      {children}
-    </section>
-  );
-}
 
 function NotificationsStatus() {
   const { permission, enableNotifications } = useEndAlerts();
@@ -65,7 +57,7 @@ export function SettingsDrawer() {
 
   return (
     <div className="space-y-6">
-      <Section title="Alarm">
+      <DrawerSection title="Alarm">
         <div className="space-y-2">
           <p id="alarm-sound-label" className="text-sm font-medium">
             Sound
@@ -115,22 +107,22 @@ export function SettingsDrawer() {
           checked={settings.repeatUntilDismissed}
           onCheckedChange={(repeatUntilDismissed) => update({ repeatUntilDismissed })}
         />
-      </Section>
+      </DrawerSection>
 
-      <Section title="Queue">
+      <DrawerSection title="Queue">
         <SwitchRow
           label="Auto-start next timer"
           hint="Default for a new or cleared queue."
           checked={settings.autoAdvanceDefault}
           onCheckedChange={(autoAdvanceDefault) => update({ autoAdvanceDefault })}
         />
-      </Section>
+      </DrawerSection>
 
-      <Section title="Notifications">
+      <DrawerSection title="Notifications">
         <NotificationsStatus />
-      </Section>
+      </DrawerSection>
 
-      <Section title="Appearance">
+      <DrawerSection title="Appearance">
         <div role="group" aria-label="Theme" className="flex gap-2">
           {THEMES.map((t) => (
             <Button
@@ -143,9 +135,9 @@ export function SettingsDrawer() {
             </Button>
           ))}
         </div>
-      </Section>
+      </DrawerSection>
 
-      <Section title="Data">
+      <DrawerSection title="Data">
         <p className="text-sm text-muted-foreground">
           Everything is stored only in this browser. Export a backup to move it elsewhere.
         </p>
@@ -180,7 +172,7 @@ export function SettingsDrawer() {
             {importError}
           </p>
         )}
-      </Section>
+      </DrawerSection>
 
       <ConfirmDialog
         open={pendingImport?.ok === true}

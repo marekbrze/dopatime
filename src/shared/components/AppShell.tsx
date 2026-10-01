@@ -28,7 +28,7 @@ export function AppShell({ miniTimer, children, drawers }: AppShellProps) {
       <StorageBanner onOpenSettings={() => setOpenDrawer('settings-data')} />
       <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b px-6 py-3">
         <h1 className="text-lg font-semibold tracking-tight">Dopatime</h1>
-        <div aria-live="off">{miniTimer}</div>
+        <div className="relative z-(--z-pinned) justify-self-center">{miniTimer}</div>
         <nav aria-label="Panels" className="flex justify-end gap-2">
           {DRAWERS.map(({ id, label, icon: Icon }) => (
             <Button

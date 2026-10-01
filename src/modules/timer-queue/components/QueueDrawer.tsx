@@ -25,7 +25,6 @@ function QueueRow({
   count,
   editing,
   onEdit,
-  onDragOver,
   onDragStart,
   onDrop,
   onRemove,
@@ -36,7 +35,6 @@ function QueueRow({
   editing: boolean;
   onEdit: (id: string | null) => void;
   onDragStart: () => void;
-  onDragOver: () => void;
   onDrop: () => void;
   onRemove: (item: QueueItem) => void;
 }) {
@@ -61,10 +59,7 @@ function QueueRow({
     <li
       draggable
       onDragStart={onDragStart}
-      onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver();
-      }}
+      onDragOver={(e) => e.preventDefault()}
       onDrop={onDrop}
       className="flex items-center gap-2 rounded-lg border p-2"
     >
@@ -163,7 +158,6 @@ export function QueueDrawer() {
               editing={editingId === item.id}
               onEdit={setEditingId}
               onDragStart={() => setDragId(item.id)}
-              onDragOver={() => undefined}
               onDrop={() => {
                 if (dragId) queue.reorder(dragId, item.id);
                 setDragId(null);
